@@ -1,37 +1,43 @@
 import { useState, useEffect, useRef } from "react";
-import { Map, View } from "ol";
+import { Feature, Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import { fromLonLat } from "ol/proj";
+import { fromLonLat, transform } from "ol/proj";
 
 import "ol/ol.css";
 import XYZ from "ol/source/XYZ"; //here...
 
-import { Point } from "ol/geom";
+import { Geometry, Point } from "ol/geom";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import GeoJSON from "ol/format/GeoJSON";
 import { PolygonStyle } from "./styles/PolygonStyle";
-import { displayFeatureInfo } from "../Hooks";
+import { displayCoords, displayFeatureInfo } from "../Hooks";
+import { Pixel } from "ol/pixel";
+import { Coordinate } from "ol/coordinate";
 
-function MapView({ zoom = 1 }: { zoom?: number }) {
+interface ICustomProps {
+  zoom: number;
+  features: Feature<Geometry>[] | undefined;
+}
+
+function MapView({ zoom = 1, features }: ICustomProps) {
   const place = [13.37871, 49.74529];
   // const point = new Point(place);
   // const [map, setMap] = useState<Map>();
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
-
+  const [selectedCoord, setSelectedCoord] = useState<Coordinate>();
 
   const vectorLayer = new VectorLayer({
     source: new VectorSource({
-      url: "http://localhost:5000/api/mhd",
-      format: new GeoJSON(),
+      features: features,
     }),
     style: PolygonStyle,
   });
 
   const placeWebMercator = fromLonLat(place);
   useEffect(() => {
-    if (mapElement.current && !mapRef.current) {
+    if (mapElement.current && !mapRef.current && features) {
       mapRef.current = new Map({
         layers: [
           // Google Maps
@@ -50,21 +56,31 @@ function MapView({ zoom = 1 }: { zoom?: number }) {
       });
 
       const map = mapRef.current;
-      map.on('click', function (evt: { dragging: any; originalEvent: UIEvent; }) {
-        if (evt.dragging) {
-          return;
+      map.on(
+        "click",
+        function (evt: {
+          pixel: Pixel;
+          dragging: any;
+          originalEvent: UIEvent;
+        }) {
+          if (evt.dragging) {
+            return;
+          }
+          const pixel = map.getEventPixel(evt.originalEvent);
+          const displ = displayFeatureInfo(pixel, map);
+          console.log(displ);
+          const coords = displayCoords(pixel, map);
+          // set React state
+          setSelectedCoord(coords);
+          console.log(coords);
         }
-        const pixel = map.getEventPixel(evt.originalEvent);
-        const displ = displayFeatureInfo(pixel, map);
-        console.log(displ);
-      });
+      );
     }
-  }, [mapElement, mapRef]);
+  }, [mapElement, mapRef, features]);
 
   useEffect(() => {
     mapRef.current?.getView().setZoom(zoom);
-  }, [mapRef, zoom]);
-
+  }, [mapRef, zoom, features]);
 
   return <div ref={mapElement} style={{ width: "100%", height: "100vh" }} />;
 }
