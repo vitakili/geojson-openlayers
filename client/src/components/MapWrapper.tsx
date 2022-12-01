@@ -88,13 +88,10 @@ function MapWrapper(props) {
   },[props.features])
 
   // map click handler
-  const handleMapClick = (event) => {
+  const handleMapClick = (event: { pixel: Pixel; }) => {
     
-    // get clicked coordinate using mapRef to access current React state inside OpenLayers callback
-    //  https://stackoverflow.com/a/60643670
     const clickedCoord = mapRef.current.getCoordinateFromPixel(event.pixel);
 
-    // transform coord to EPSG 4326 standard Lat Long
     const transormedCoord = transform(clickedCoord, 'EPSG:3857', 'EPSG:4326')
 
     // set React state
