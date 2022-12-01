@@ -10,6 +10,7 @@ import Feature from "ol/Feature";
 // components
 import MapView from "./components/MapView";
 import { Geometry } from "ol/geom";
+import { LoadingSpinner } from "./components/styles/LoadingSpinner";
 
 function App() {
   // set intial state
@@ -40,7 +41,7 @@ function App() {
 
   return (
     <div className="App">
-      {!features ? "Loading..." : <MapView features={features} zoom={12} />}
+      {!features ? <LoadingSpinner/> : <MapView features={features} zoom={12} />}
     </div>
   );
 }
