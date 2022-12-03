@@ -41,7 +41,7 @@ function App() {
 
   return (
     <div className="App">
-      {!features ? <LoadingSpinner/> : <MapView features={features} zoom={12} />}
+      {!features ? <LoadingSpinner color={"blue"} /> : <MapView features={features} zoom={12} />}
     </div>
   );
 }
