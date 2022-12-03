@@ -15,6 +15,7 @@ import { PolygonStyle } from "./styles/PolygonStyle";
 import { displayCoords, displayFeatureInfo, handlePopupDisplay } from "../Helpers";
 import { Pixel } from "ol/pixel";
 import { Coordinate } from "ol/coordinate";
+import { Popover } from "./Popover/Popover";
 
 interface ICustomProps {
   zoom: number;
@@ -25,10 +26,10 @@ function MapView({ zoom = 1, features }: ICustomProps) {
   const place = [13.37871, 49.74529];
   // const point = new Point(place);
   // const [map, setMap] = useState<Map>();
+  const [popVal, setPopVal] = useState({});
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const [selectedCoord, setSelectedCoord] = useState<Coordinate>();
-
   const vectorLayer = new VectorLayer({
     source: new VectorSource({
       features: features,
@@ -38,7 +39,7 @@ function MapView({ zoom = 1, features }: ICustomProps) {
 
   const placeWebMercator = fromLonLat(place);
   useEffect(() => {
-    if (mapElement.current && !mapRef.current && features) {
+    if (mapElement.current && !mapRef.current) {
       mapRef.current = new Map({
         controls: defaultControls().extend([new FullScreen(), new ZoomSlider()]),
         layers: [
@@ -57,47 +58,55 @@ function MapView({ zoom = 1, features }: ICustomProps) {
         target: mapElement.current,
       });
 
-      const map = mapRef.current;
-      map.on(
-        "click",
-        function (evt: {
-          pixel: Pixel;
-          dragging: any;
-          originalEvent: UIEvent;
-        }) {
-          if (evt.dragging) {
-            return;
-          }
-          const pixel = map.getEventPixel(evt.originalEvent);
-          const displ = displayFeatureInfo(pixel, map);
-          const coords = displayCoords(pixel, map);
-          if (displ !== undefined) {
-            // set React state
-            setSelectedCoord(coords.clickedCoord);
-            console.log('selectedCoord',selectedCoord);
-            handlePopupDisplay(map, coords.clickedCoord, displ);
-          }else {
-            console.log(selectedCoord);
-            map.getView().animate({
-              center: selectedCoord,
-              zoom: 12,
-              duration: 500
-            })
-          }
-        }
-      );
     }
-  }, [mapElement, mapRef, features, selectedCoord]);
+  }, [mapElement, mapRef]);
+
+  useEffect(() => {
+    if (mapRef.current && features) {
+    const map = mapRef.current;
+    map.on(
+      "click",
+      function (evt: {
+        pixel: Pixel;
+        dragging: any;
+        originalEvent: UIEvent;
+      }) {
+        if (evt.dragging) {
+          return;
+        }
+        const pixel = map.getEventPixel(evt.originalEvent);
+         const displ = displayFeatureInfo(pixel, map);
+        const coords = displayCoords(pixel, map);
+        if (displ !== undefined) {
+          // set React state
+          setSelectedCoord(coords.clickedCoord);
+          handlePopupDisplay(map, coords.clickedCoord, displ);
+          setPopVal(displ);
+        }else {
+          map.getView().animate({
+            center: selectedCoord,
+            zoom: 12,
+            duration: 500
+          })
+          setPopVal({});
+        }
+      }
+    );
+    }
+  },[mapRef, selectedCoord, features])
 
   useEffect(() => {
     mapRef.current?.getView().setZoom(zoom);
-  }, [mapRef, zoom, features]);
+  }, [mapRef]);
 
   return (
       <div ref={mapElement} style={{ width: "100%", height: "100vh" }}>
-      <div id="popup-container">
+      {/* {displ !== undefined ? */}
+      <Popover popVal={popVal} />
+      {/* } */}
+      {/* <div id="popup-container">
         <div id="popup-content"></div>
-      </div>
+      </div> */}
       </div>
   );
 }

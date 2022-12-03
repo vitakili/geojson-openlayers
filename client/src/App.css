@@ -41,7 +41,7 @@
 }
 
 /* popup */
-#popup-container {
+/* #popup-container {
   position: absolute;
   display: none;
   text-align: center;
@@ -78,4 +78,4 @@
 
 #popup-icon:hover {
   cursor: pointer;
-}
+} */

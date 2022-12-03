@@ -29,11 +29,10 @@ export const handlePopupDisplay = (
   const popupContainerElement: HTMLDivElement = document.getElementById(
     "popup-container"
   ) as HTMLDivElement;
-  const popupContentElement: HTMLDivElement = document.getElementById(
-    "popup-content"
-  ) as HTMLDivElement;
+  // const popupContentElement: HTMLDivElement = document.getElementById(
+  //   "popup-content"
+  // ) as HTMLDivElement;
 
-  console.log(coords)
   const overlayLayer: Overlay = new Overlay({
     element: popupContainerElement,
     autoPan: true,
@@ -49,19 +48,18 @@ export const handlePopupDisplay = (
       popupContainerElement.style.display = "block";
       // map.getViewport().style.cursor = "auto";
 
-      popupContentElement.innerHTML = `
-      <div id="popup-text">
-      <strong>${displ.OBJEKT}</strong><br/>
-      <strong>${displ.NAZEV}</strong>
-      <p>${coords[0]},${coords[1]}</p>
-      </div>
-      `;
+      // popupContentElement.innerHTML = `
+      // <div id="popup-text">
+      // <strong>${displ.OBJEKT}</strong><br/>
+      // <strong>${displ.NAZEV}</strong>
+      // <p>${coords[0]},${coords[1]}</p>
+      // </div>
+      // `;
       overlayLayer.setPosition(coords);
-      console.log(overlayLayer);
       map.getView().animate({
         center: coords,
         zoom:15,
-        duration: 500,
+        duration: 1000,
       });
     } else {
       popupContainerElement.style.display = "none";
