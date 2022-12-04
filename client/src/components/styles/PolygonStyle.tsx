@@ -8,7 +8,7 @@ import Style from "ol/style/Style";
     }),
     stroke: new Stroke({
         color: 'rgba(71, 166, 255, 1)',
-        width: 5,
+        width: 8,
         lineDash: [5,10]
     })
 });

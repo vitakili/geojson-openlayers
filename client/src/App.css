@@ -5,6 +5,7 @@
   text-align: center;
 } */
 
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -41,7 +42,7 @@
 }
 
 /* popup */
-/* #popup-container {
+ /* #popup-container {
   position: absolute;
   display: none;
   text-align: center;
@@ -55,8 +56,8 @@
   z-index: 20;
   width: 300px;
   height: 150px;
-}
-
+} */
+/*
 #popup-content {
   height: 100%;
   display: flex;

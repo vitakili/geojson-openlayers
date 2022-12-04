@@ -1,5 +1,5 @@
 interface ISpinnerProps {
-  color: string;
+  color: "blue" | "red" | "orange" | "green";
 }
 export const LoadingSpinner = ({color}:ISpinnerProps) => {
   return (

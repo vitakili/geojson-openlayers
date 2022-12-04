@@ -1,18 +1,26 @@
 import { useState, useEffect, useRef } from "react";
-import { Feature, Map, Overlay, View } from "ol";
+import { Feature, Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import { fromLonLat, transform } from "ol/proj";
-import { FullScreen, ZoomSlider, defaults as defaultControls } from "ol/control";
+import { fromLonLat } from "ol/proj";
+import {
+  FullScreen,
+  ZoomSlider,
+  defaults as defaultControls,
+} from "ol/control";
 
 import "ol/ol.css";
 import XYZ from "ol/source/XYZ"; //here...
 
-import { Geometry, Point } from "ol/geom";
+import { Geometry } from "ol/geom";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
-import GeoJSON from "ol/format/GeoJSON";
+
 import { PolygonStyle } from "./styles/PolygonStyle";
-import { displayCoords, displayFeatureInfo, handlePopupDisplay } from "../Helpers";
+import {
+  displayCoords,
+  displayFeatureInfo,
+  handlePopupDisplay,
+} from "../Helpers";
 import { Pixel } from "ol/pixel";
 import { Coordinate } from "ol/coordinate";
 import { Popover } from "./Popover/Popover";
@@ -24,12 +32,14 @@ interface ICustomProps {
 
 function MapView({ zoom = 1, features }: ICustomProps) {
   const place = [13.37871, 49.74529];
+  const placeWebMercator = fromLonLat(place);
   // const point = new Point(place);
   // const [map, setMap] = useState<Map>();
   const [popVal, setPopVal] = useState({});
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const [selectedCoord, setSelectedCoord] = useState<Coordinate>();
+
   const vectorLayer = new VectorLayer({
     source: new VectorSource({
       features: features,
@@ -37,11 +47,13 @@ function MapView({ zoom = 1, features }: ICustomProps) {
     style: PolygonStyle,
   });
 
-  const placeWebMercator = fromLonLat(place);
   useEffect(() => {
     if (mapElement.current && !mapRef.current) {
       mapRef.current = new Map({
-        controls: defaultControls().extend([new FullScreen(), new ZoomSlider()]),
+        controls: defaultControls().extend([
+          new FullScreen(),
+          new ZoomSlider(),
+        ]),
         layers: [
           // Google Maps
           new TileLayer({
@@ -53,61 +65,54 @@ function MapView({ zoom = 1, features }: ICustomProps) {
         ],
         view: new View({
           center: placeWebMercator,
-          zoom: 8,
+          zoom,
         }),
         target: mapElement.current,
       });
-
     }
   }, [mapElement, mapRef]);
 
   useEffect(() => {
     if (mapRef.current && features) {
-    const map = mapRef.current;
-    map.on(
-      "click",
-      function (evt: {
-        pixel: Pixel;
-        dragging: any;
-        originalEvent: UIEvent;
-      }) {
-        if (evt.dragging) {
-          return;
+      const map = mapRef.current;
+      map.on(
+        "click",
+        function (evt: {
+          pixel: Pixel;
+          dragging: any;
+          originalEvent: UIEvent;
+        }) {
+          if (evt.dragging) {
+            return;
+          }
+          const pixel = map.getEventPixel(evt.originalEvent);
+          const displ = displayFeatureInfo(pixel, map);
+          const coords = displayCoords(pixel, map);
+          if (displ !== undefined) {
+            setSelectedCoord(coords.clickedCoord);
+            // set React state
+            handlePopupDisplay(map, coords.clickedCoord);
+            const { geometry, ...filteredDispl } = displ;
+            setPopVal(filteredDispl);
+          } else {
+            map.getView().animate({
+              center: selectedCoord,
+              zoom: 12,
+              duration: 1000,
+            });
+            if (Object.keys(popVal).length !== 0) {
+              setPopVal({});
+            }
+          }
         }
-        const pixel = map.getEventPixel(evt.originalEvent);
-         const displ = displayFeatureInfo(pixel, map);
-        const coords = displayCoords(pixel, map);
-        if (displ !== undefined) {
-          // set React state
-          setSelectedCoord(coords.clickedCoord);
-          handlePopupDisplay(map, coords.clickedCoord, displ);
-          setPopVal(displ);
-        }else {
-          map.getView().animate({
-            center: selectedCoord,
-            zoom: 12,
-            duration: 500
-          })
-          setPopVal({});
-        }
-      }
-    );
+      );
     }
-  },[mapRef, selectedCoord, features])
-
-  useEffect(() => {
-    mapRef.current?.getView().setZoom(zoom);
-  }, [mapRef]);
+  }, [selectedCoord]);
 
   return (
-      <div ref={mapElement} style={{ width: "100%", height: "100vh" }}>
-      {/* {displ !== undefined ? */}
+    <div ref={mapElement} style={{ width: "100%", height: "100vh" }}>
       <Popover popVal={popVal} />
-      {/* } */}
-      {/* <div id="popup-container">
-        <div id="popup-content"></div>
-      </div> */}
-      </div>
+    </div>
   );
 }
 

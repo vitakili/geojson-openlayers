@@ -1,15 +1,14 @@
 import Icon from "ol/style/Icon";
 import Style from "ol/style/Style";
-import LocationPin from '../../assets/location-pin.png';
+import LocationPin from "../../assets/location-pin.png";
 
-export const pinStyle = (): Style => {
-    return new Style({
-      image: new Icon({
-        anchor: [30, 50],
-        scale: 1,
-        anchorXUnits: "fraction",
-        anchorYUnits: "pixels",
-        src: LocationPin,
-      }),
-    });
-  };
+export const PinStyle = new Style({
+  image: new Icon({
+    anchor: [0.5, 50],
+    scale: 0.04,
+    anchorXUnits: "fraction",
+    anchorYUnits: "pixels",
+    crossOrigin: 'anonymous',
+    src: LocationPin,
+  }),
+});
