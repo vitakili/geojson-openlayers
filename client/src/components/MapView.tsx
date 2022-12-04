@@ -9,13 +9,10 @@ import {
 } from "ol/control";
 
 import "ol/ol.css";
-import XYZ from "ol/source/XYZ"; //here...
+import { XYZ, OSM } from "ol/source"; //here...
 
 import { Geometry } from "ol/geom";
-import VectorLayer from "ol/layer/Vector";
-import VectorSource from "ol/source/Vector";
 
-import { PolygonStyle } from "./styles/PolygonStyle";
 import {
   displayCoords,
   displayFeatureInfo,
@@ -24,6 +21,7 @@ import {
 import { Pixel } from "ol/pixel";
 import { Coordinate } from "ol/coordinate";
 import { Popover } from "./Popover/Popover";
+import { krajWmsKatLayer, nemovWmsKatLayer, vectorLayer } from "./Layers";
 
 interface ICustomProps {
   zoom: number;
@@ -33,22 +31,17 @@ interface ICustomProps {
 function MapView({ zoom = 1, features }: ICustomProps) {
   const place = [13.37871, 49.74529];
   const placeWebMercator = fromLonLat(place);
-  // const point = new Point(place);
   // const [map, setMap] = useState<Map>();
   const [popVal, setPopVal] = useState({});
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const [selectedCoord, setSelectedCoord] = useState<Coordinate>();
-
-  const vectorLayer = new VectorLayer({
-    source: new VectorSource({
-      features: features,
-    }),
-    style: PolygonStyle,
-  });
+  
+  let vectorLayerProp;
 
   useEffect(() => {
-    if (mapElement.current && !mapRef.current) {
+    if (mapElement.current && !mapRef.current && features) {
+      vectorLayerProp = vectorLayer(features);
       mapRef.current = new Map({
         controls: defaultControls().extend([
           new FullScreen(),
@@ -56,16 +49,23 @@ function MapView({ zoom = 1, features }: ICustomProps) {
         ]),
         layers: [
           // Google Maps
+          // new TileLayer({
+          //   source: new XYZ({
+          //     url: "http://mt0.google.com/vt/lyrs=m&hl=cs&x={x}&y={y}&z={z}",
+          //   }),
+          // }),
           new TileLayer({
-            source: new XYZ({
-              url: "http://mt0.google.com/vt/lyrs=m&hl=cs&x={x}&y={y}&z={z}",
-            }),
+            source: new OSM(),
           }),
-          vectorLayer,
+          vectorLayerProp,
+          krajWmsKatLayer,
+          // nemovWmsKatLayer,
         ],
         view: new View({
           center: placeWebMercator,
           zoom,
+          minZoom: 8,
+          maxZoom:20,
         }),
         target: mapElement.current,
       });
