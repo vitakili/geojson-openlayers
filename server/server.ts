@@ -11,7 +11,11 @@ app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 app.get('/api/mhd', cors(), function(req, res) {
   res.setHeader('Content-Type', 'application/json');
-  fs.createReadStream('./assets/mhdzastavky.geojson').pipe(res);
+  fs.createReadStream('./models/mhdzastavky.geojson').pipe(res);
+});
+app.get('/api/layers', cors(), function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  fs.createReadStream('./models/layers.json').pipe(res);
 });
 
 // All other GET requests not handled before will return our React app
@@ -25,7 +29,7 @@ app.listen(port, () => `Server running on port ${port}`);
 
 // import express from 'express';
 // import cors from 'cors';
-// const mhdData = require('./assets/mhdzastavky.geojson');
+// const mhdData = require('./models/mhdzastavky.geojson');
 
 // const app = express();
 

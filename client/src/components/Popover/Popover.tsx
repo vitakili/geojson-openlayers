@@ -1,16 +1,10 @@
+import { IPopupProps } from "../../Types";
 
-interface IPropType {
-  // showPopover: boolean;
-  popVal: {
-    OBJEKT?: String;
-    NAZEV?: String;
-    ID_ZAST?: Number;
-    ID_PMDP_GPS?: String;
-    TYP?: String;
-  };
+interface ICustomProps {
+  popVal: IPopupProps;
 }
 
-export const Popover = ({ popVal }: IPropType): JSX.Element => {
+export const Popover: React.FC<ICustomProps> = ({ popVal }): JSX.Element => {
   const mapArray = Object.values(popVal).map((item:any, i) => {
     return <p key={i}>{item}</p>;
   });

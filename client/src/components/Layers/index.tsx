@@ -1,19 +1,24 @@
-import { Collection, Feature } from "ol";
+import { Feature } from "ol";
 import { Geometry } from "ol/geom";
 import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
 import { TileWMS } from "ol/source";
 import VectorSource from "ol/source/Vector";
-import { useEffect } from "react";
+import { ISideBarProps } from "../../Types";
 import { PolygonStyle } from "../styles/PolygonStyle";
 
 // interface IPropTypes {
 //     features?: Feature<Geometry>[] | Collection<Feature<Geometry>> | undefined;
 // }
+// interface ICustomProps {
+//   layerProps: ISideBarProps;
+// }
 
 export const vectorLayer = (features: Feature<Geometry>[] | undefined) => {
-  console.log(features);
   return new VectorLayer({
+    properties:{
+      name: 'Mhd zastávky',
+    },
     source: new VectorSource({
       features: features,
     }),
@@ -21,26 +26,19 @@ export const vectorLayer = (features: Feature<Geometry>[] | undefined) => {
   });
 };
 
-export const krajWmsKatLayer = new TileLayer({
+export const tileWmsLayer = (layerProps:ISideBarProps) => {
+  return new TileLayer({
+    properties:{
+      name: layerProps.name,
+    },
     source: new TileWMS({
-      url: "http://services.cuzk.cz/wms/wms.asp?service=WMS",
+      url: layerProps.url,
       attributions:
-        '<a href="http://www.cuzk.cz" target="blank"> Czech Office for Surveying, Mapping and Cadastre</a>',
+        layerProps.attributions,
       params: {
         LAYERS:
-          "parcelni_cisla,obrazy_parcel,RST_KMD,hranice_parcel,DEF_BUDOVY,RST_KN,dalsi_p_mapy,prehledka_kat_prac,prehledka_kat_uz,prehledka_kraju-linie",
+          layerProps.params.LAYERS,
       },
     }),
   });
-
-export const nemovWmsKatLayer = new TileLayer({
-  source: new TileWMS({
-    url: "http://services.cuzk.cz/wms/wms.asp?service=WMS",
-    attributions:
-      '<a href="http://www.cuzk.cz" target="blank"> Czech Office for Surveying, Mapping and Cadastre</a>',
-    params: {
-      layers:
-        "parcelni_cisla,obrazy_parcel,RST_KMD,RST_KN,hranice_parcel,dalsi_p_mapy",
-    },
-  }),
-});
+}

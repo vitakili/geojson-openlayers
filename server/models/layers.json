@@ -1,0 +1,24 @@
+[
+    {
+      "id": 1,
+      "name": "Katastr krajů",
+      "url": "http://services.cuzk.cz/wms/wms.asp?service=WMS",
+      "attributions": "<a href=\"http://www.cuzk.cz\" target=\"blank\"> Czech Office for Surveying, Mapping and Cadastre</a>",
+      "params": {
+        "LAYERS": "parcelni_cisla,obrazy_parcel,RST_KMD,hranice_parcel,DEF_BUDOVY,RST_KN,dalsi_p_mapy,prehledka_kat_prac,prehledka_kat_uz,prehledka_kraju-linie"
+      },
+      "zoom": 12,
+      "minZoom": 8
+    },
+    {
+      "id": 2,
+      "name": "Katastr nemovitostí",
+      "url": "http://services.cuzk.cz/wms/wms.asp?service=WMS",
+      "attributions": "<a href=\"http://www.cuzk.cz\" target=\"blank\"> Czech Office for Surveying, Mapping and Cadastre</a>",
+      "params": {
+        "LAYERS": "parcelni_cisla,obrazy_parcel,RST_KMD,RST_KN,hranice_parcel,dalsi_p_mapy"
+      },
+      "zoom": 18,
+      "minZoom": 17
+    }
+  ]

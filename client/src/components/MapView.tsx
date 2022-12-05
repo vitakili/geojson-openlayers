@@ -21,14 +21,20 @@ import {
 import { Pixel } from "ol/pixel";
 import { Coordinate } from "ol/coordinate";
 import { Popover } from "./Popover/Popover";
-import { krajWmsKatLayer, nemovWmsKatLayer, vectorLayer } from "./Layers";
+import {
+  tileWmsLayer,
+  vectorLayer,
+} from "./Layers";
+import { SideBar } from "./SideBar";
+import { ISideBarProps } from "../Types";
 
 interface ICustomProps {
   zoom: number;
   features: Feature<Geometry>[] | undefined;
+  layers: ISideBarProps[] | undefined;
 }
 
-function MapView({ zoom = 1, features }: ICustomProps) {
+function MapView({ zoom = 1, features, layers }: ICustomProps) {
   const place = [13.37871, 49.74529];
   const placeWebMercator = fromLonLat(place);
   // const [map, setMap] = useState<Map>();
@@ -36,7 +42,12 @@ function MapView({ zoom = 1, features }: ICustomProps) {
   const mapElement = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const [selectedCoord, setSelectedCoord] = useState<Coordinate>();
-  
+
+  const [newData, setNewData] = useState(null);
+  const sendValue = (newData: any) => {
+    setNewData(newData);
+  };
+
   let vectorLayerProp;
 
   useEffect(() => {
@@ -55,23 +66,53 @@ function MapView({ zoom = 1, features }: ICustomProps) {
           //   }),
           // }),
           new TileLayer({
+            properties: {
+              name: "Mapa pozadí",
+            },
             source: new OSM(),
           }),
           vectorLayerProp,
-          krajWmsKatLayer,
-          // nemovWmsKatLayer,
         ],
         view: new View({
           center: placeWebMercator,
           zoom,
           minZoom: 8,
-          maxZoom:20,
+          maxZoom: 20,
         }),
         target: mapElement.current,
       });
     }
   }, [mapElement, mapRef]);
 
+  useEffect(() => {
+    if (mapRef.current && features && newData !== null && layers) {
+      function findInArray(item: ISideBarProps) {
+        return item.name === newData;
+      }
+      const findLayer = layers.find(findInArray);
+      if (findLayer) {
+        const layer = tileWmsLayer(findLayer);
+        const map = mapRef.current;
+        map.addLayer(layer);
+        map.getView().setMinZoom(findLayer.minZoom);
+        map.getView().animate({
+          zoom: findLayer.zoom,
+          duration: 250,
+        });
+        layers.forEach((lay) => {
+          if (findLayer.name !== lay.name) {
+            let remove = map
+              .getLayers()
+              .getArray()
+              .find((layer) => layer.get("name") == lay.name);
+            if (remove) {
+              map.removeLayer(remove);
+            }
+          }
+        });
+      }
+    }
+  }, [newData]);
   useEffect(() => {
     if (mapRef.current && features) {
       const map = mapRef.current;
@@ -110,8 +151,11 @@ function MapView({ zoom = 1, features }: ICustomProps) {
   }, [selectedCoord]);
 
   return (
-    <div ref={mapElement} style={{ width: "100%", height: "100vh" }}>
-      <Popover popVal={popVal} />
+    <div className="flex">
+      <SideBar layerProps={layers} sendValue={sendValue} />
+      <div ref={mapElement} style={{ width: "100%", height: "100vh" }}>
+        <Popover popVal={popVal} />
+      </div>
     </div>
   );
 }
