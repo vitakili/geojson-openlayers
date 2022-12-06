@@ -42,13 +42,9 @@ export const SideBar: React.FC<ICustomProps> = ({ layerProps, sendValue }) => {
             }  flex  rounded-md p-2 cursor-pointer hover:bg-white text-gray-700 items-center gap-x-4 
               mt-2 bg-blue-50
                `}
+            onClick={() => handleOnClick(item.name)}
           >
-            <span
-              onClick={() => handleOnClick(item.name)}
-              className={`origin-left duration-200`}
-            >
-              {item.name}
-            </span>
+            <span className={`origin-left duration-200`}>{item.name}</span>
           </li>
         ))}
         <li
@@ -58,13 +54,9 @@ export const SideBar: React.FC<ICustomProps> = ({ layerProps, sendValue }) => {
           }  flex  rounded-md p-2 cursor-pointer hover:bg-white text-gray-700 items-center gap-x-4 
               mt-2 bg-blue-50
                `}
+          onClick={() => handleOnClick(vectorName)}
         >
-          <span
-            onClick={() => handleOnClick(vectorName)}
-            className={`origin-left duration-200`}
-          >
-            {vectorName}
-          </span>
+          <span className={`origin-left duration-200`}>{vectorName}</span>
         </li>
       </ul>
     </div>
