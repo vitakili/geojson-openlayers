@@ -1,23 +1,25 @@
 import { useState } from "react";
-import { ISideBarProps } from "../Types";
+import { EnumLayerName, ISideBarProps } from "../Types";
 
 interface ICustomProps {
   layerProps: ISideBarProps[] | undefined;
   sendValue: (value: string) => void;
 }
 
-export const SideBar: React.FC<ICustomProps> = ({layerProps, sendValue}) => {
+export const SideBar: React.FC<ICustomProps> = ({ layerProps, sendValue }) => {
   const [open, setOpen] = useState(true);
-
+  // const [active, setActive] = useState(false);
+  let vectorName = EnumLayerName.Name as string;
 
   const handleOnClick = (name: string) => {
-    sendValue(name)
-  }
+    sendValue(name);
+  };
+  // absolute left-0 z-10
   return (
     <div
       className={` ${
         open ? "w-72" : "w-0"
-      } bg-blue-100 h-screen p-5  pt-8 absolute left-0 z-10 duration-300`}
+      } bg-blue-100 h-screen p-5 relative pt-8  duration-300`}
     >
       <img
         src="./src/assets/location-pin.png"
@@ -34,16 +36,36 @@ export const SideBar: React.FC<ICustomProps> = ({layerProps, sendValue}) => {
       <ul className="pt-6">
         {layerProps?.map((item) => (
           <li
-            key={item.id}
+            key={item.name}
             className={`${
               !open && "hidden"
             }  flex  rounded-md p-2 cursor-pointer hover:bg-white text-gray-700 items-center gap-x-4 
               mt-2 bg-blue-50
                `}
           >
-            <span onClick={()=> handleOnClick(item.name)} className={`origin-left duration-200`}>{item.name}</span>
+            <span
+              onClick={() => handleOnClick(item.name)}
+              className={`origin-left duration-200`}
+            >
+              {item.name}
+            </span>
           </li>
         ))}
+        <li
+          key={vectorName}
+          className={`${
+            !open && "hidden"
+          }  flex  rounded-md p-2 cursor-pointer hover:bg-white text-gray-700 items-center gap-x-4 
+              mt-2 bg-blue-50
+               `}
+        >
+          <span
+            onClick={() => handleOnClick(vectorName)}
+            className={`origin-left duration-200`}
+          >
+            {vectorName}
+          </span>
+        </li>
       </ul>
     </div>
   );

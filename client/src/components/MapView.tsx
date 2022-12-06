@@ -21,12 +21,9 @@ import {
 import { Pixel } from "ol/pixel";
 import { Coordinate } from "ol/coordinate";
 import { Popover } from "./Popover/Popover";
-import {
-  tileWmsLayer,
-  vectorLayer,
-} from "./Layers";
+import { tileWmsLayer, vectorLayer } from "./Layers";
 import { SideBar } from "./SideBar";
-import { ISideBarProps } from "../Types";
+import { EnumLayerName, ISideBarProps } from "../Types";
 
 interface ICustomProps {
   zoom: number;
@@ -52,7 +49,6 @@ function MapView({ zoom = 1, features, layers }: ICustomProps) {
 
   useEffect(() => {
     if (mapElement.current && !mapRef.current && features) {
-      vectorLayerProp = vectorLayer(features);
       mapRef.current = new Map({
         controls: defaultControls().extend([
           new FullScreen(),
@@ -71,7 +67,6 @@ function MapView({ zoom = 1, features, layers }: ICustomProps) {
             },
             source: new OSM(),
           }),
-          vectorLayerProp,
         ],
         view: new View({
           center: placeWebMercator,
@@ -86,21 +81,30 @@ function MapView({ zoom = 1, features, layers }: ICustomProps) {
 
   useEffect(() => {
     if (mapRef.current && features && newData !== null && layers) {
+      vectorLayerProp = vectorLayer(features);
       function findInArray(item: ISideBarProps) {
         return item.name === newData;
       }
+      const map = mapRef.current;
       const findLayer = layers.find(findInArray);
       if (findLayer) {
         const layer = tileWmsLayer(findLayer);
-        const map = mapRef.current;
         map.addLayer(layer);
         map.getView().setMinZoom(findLayer.minZoom);
         map.getView().animate({
           zoom: findLayer.zoom,
           duration: 250,
         });
+        const findMhd = map
+          .getLayers()
+          .getArray()
+          .find((layer) => layer.get("name") == EnumLayerName.Name);
+        if (findMhd) {
+          map.removeLayer(findMhd);
+        }
         layers.forEach((lay) => {
           if (findLayer.name !== lay.name) {
+            console.log(lay.name);
             let remove = map
               .getLayers()
               .getArray()
@@ -110,6 +114,24 @@ function MapView({ zoom = 1, features, layers }: ICustomProps) {
             }
           }
         });
+      } else if (newData === EnumLayerName.Name) {
+        map.addLayer(vectorLayerProp);
+        map.getView().setMinZoom(EnumLayerName.MinZoom);
+        map.getView().animate({
+          zoom: EnumLayerName.Zoom as number,
+          duration: 250,
+        });
+        if (layers) {
+          layers.forEach((lay) => {
+            let remove = map
+              .getLayers()
+              .getArray()
+              .find((layer) => layer.get("name") == lay.name);
+            if (remove) {
+              map.removeLayer(remove);
+            }
+          });
+        }
       }
     }
   }, [newData]);

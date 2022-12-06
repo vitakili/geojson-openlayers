@@ -4,7 +4,7 @@ import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
 import { TileWMS } from "ol/source";
 import VectorSource from "ol/source/Vector";
-import { ISideBarProps } from "../../Types";
+import { ISideBarProps, EnumLayerName } from "../../Types";
 import { PolygonStyle } from "../styles/PolygonStyle";
 
 // interface IPropTypes {
@@ -15,9 +15,10 @@ import { PolygonStyle } from "../styles/PolygonStyle";
 // }
 
 export const vectorLayer = (features: Feature<Geometry>[] | undefined) => {
+  let vectorName:EnumLayerName = EnumLayerName.Name;
   return new VectorLayer({
     properties:{
-      name: 'Mhd zastávky',
+      name: vectorName,
     },
     source: new VectorSource({
       features: features,

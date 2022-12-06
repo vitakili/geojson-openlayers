@@ -6,13 +6,23 @@ export interface IPopupProps {
   TYP?: String;
 }
 export interface ISideBarProps {
-    id: number;
-    name: string;
-    url: string;
-    attributions: string;
-    params: {
-      LAYERS: string;
-    };
-    zoom: number;
-    minZoom: number;
+  id: number;
+  name: string;
+  url: string;
+  attributions: string;
+  params: {
+    LAYERS: string;
+  };
+  zoom: number;
+  minZoom: number;
+}
+
+// export type TypeLayerName = "Mhd zastávky Plzeň";
+export enum EnumLayerName {
+  Name = "Mhd zastávky Plzeň",
+  Zoom = 12,
+  MinZoom = 10,
+}
+export interface ILayerName {
+  layerName: EnumLayerName;
 }
