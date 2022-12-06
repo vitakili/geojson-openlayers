@@ -17,8 +17,8 @@ function App() {
   
   useEffect(() => {
       Promise.all([
-        fetch("http://localhost:5000/api/mhd"),
-        fetch("http://localhost:5000/api/layers")
+        fetch("/api/mhd"),
+        fetch("/api/layers")
       ])
         .then(([resFeatures, resLayers]) =>
           Promise.all([resFeatures.json(), resLayers.json()])
